@@ -5,7 +5,7 @@ import pickle
 import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
-from src.features import FeatureEngineering
+from typing import List
 import uvicorn
 
 # =========================
@@ -69,6 +69,21 @@ def home():
 def predict_api(transaction: TransactionInput):
     result = predict_transaction(transaction.dict())
     return result
+
+@app.post("/predict_batch")
+def predict_batch(transactions: List[TransactionInput]):
+    df = pd.DataFrame([t.dict() for t in transactions])
+    probs = pipeline.predict_proba(df)[:, 1]
+
+    results = []
+    for prob in probs:
+        pred = "Fraud" if prob >= threshold else "Legitimate"
+        results.append({
+            "fraud_probability": round(float(prob), 4),
+            "prediction": pred
+        })
+
+    return results
 
 # =========================
 # Main Entry Point
