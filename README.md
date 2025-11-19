@@ -107,10 +107,7 @@ The target variable is heavily imbalanced:
 
 **Image in repository at:** `images/fraud_distribution.png`
 
-**Display in Markdown:**
-```markdown
 ![Fraud vs Non-Fraud Transaction Counts](images/fraud_distribution.png)
-```
 
 **Key insight:**
 - Fraudulent transactions represent only ~2.2% of the dataset
@@ -122,10 +119,7 @@ The target variable is heavily imbalanced:
 
 **Image in repository:** `images/correlation_matrix.png`
 
-**Display in Markdown:**
-```markdown
 ![Correlation Matrix of Numeric Features](images/correlation_matrix.png)
-```
 
 **Important correlations with `is_fraud`:**
 - `shipping_distance_km` → 0.27
