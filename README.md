@@ -1,28 +1,67 @@
-# 🛒 E-Commerce Fraud Detection using Machine Learning  
+# 🚨 E-Commerce Fraud Detection using Machine Learning  
+### 🔍 Predicting fraudulent transactions with XGBoost & FastAPI | Dockerized & Deployed on Render
 
-### 🔍 Detecting Fraudulent Transactions Across Global E-Commerce Platforms  
+## Problem Description
+
+E-commerce platforms process millions of transactions every day. Even a small number of fraudulent transactions can lead to major financial losses, chargebacks, operational overhead, and customer dissatisfaction.
+
+Fraud detection is a challenging problem due to:
+
+- Highly imbalanced datasets (fraudulent cases are extremely rare)  
+- Constantly evolving fraud patterns  
+- The requirement for near real-time decision-making  
+- The need to avoid false positives, which can negatively impact genuine users  
+
+The objective of this project is to develop a machine learning–based fraud detection system that predicts whether a transaction is fraudulent using historical data and engineered features.
+
+The project includes:
+
+- Exploratory Data Analysis (EDA)  
+- Feature engineering  
+- Model training and comparison (Logistic Regression, Decision Tree, Random Forest, XGBoost)  
+- Hyperparameter optimization and threshold tuning  
+
+The final solution is built using the XGBoost model, optimized with a custom decision threshold of `0.80`, which balances fraud detection coverage and false positives.
+
+The model is deployed as a REST API using FastAPI, containerized using Docker, and hosted on Render for real-time inference.
 
 ---
 
-# 🧠 Problem Description  
+### How the Solution Is Used
 
-E-commerce platforms process millions of transactions daily, but a small fraction of them are **fraudulent** — involving stolen cards, fake accounts, or abnormal cross-border activity. Detecting these fraudulent transactions in real time is critical for preventing **financial losses**, maintaining **platform integrity**, and ensuring **customer trust**.  
+When the e-commerce platform processes a transaction, it sends the transaction details to the API. The model returns a fraud probability score and a final prediction.
 
-This project develops a **machine learning system** that automatically identifies potentially fraudulent e-commerce transactions by analyzing **user behavior**, **transactional attributes**, and **geographic indicators**.  
+Example output:
 
-The model uses a **synthetic yet realistic dataset** containing 300,000 transactions from 6,000 unique users across five major cities — **Istanbul, Berlin, New York, London, and Paris**. It simulates real-world fraud behaviors such as:  
+```json
+{
+  "fraud_probability": 0.9875,
+  "prediction": "Fraud"
+}
+```
 
-- Night-time fraud spikes and daily temporal patterns  
-- Cross-country card usage (different billing vs. transaction countries)  
-- High-value or unusual transactions from new accounts  
-- Device and channel (web/app) patterns indicating suspicious activity  
+Based on the model response:
 
-The model outputs a **fraud probability score** for each transaction.  
-This score can be used by e-commerce platforms to:  
+| Prediction | Recommended Action                            |
+|------------|-----------------------------------------------|
+| Fraud      | Block transaction or send for manual review   |
+| Legitimate | Approve transaction                           |
 
-- Flag or block suspicious transactions  
-- Trigger additional authentication or manual review  
-- Improve risk management and loss prevention systems  
+---
 
-Ultimately, this project aims to create a **scalable and explainable ML-based fraud detection system** that helps e-commerce businesses reduce fraud risk while maintaining seamless user experience.
+## Summary
+
+This project delivers an end-to-end production-ready fraud detection system, including:
+
+- Data loading, preparation, and exploratory analysis  
+- Feature engineering and selection  
+- Model training, evaluation, and tuning  
+- Model packaging using FastAPI  
+- Docker-based containerization  
+- Deployment on Render with live API access  
+
+The system is suitable for real-world integration into transaction processing pipelines to minimize fraud risk and enhance payment security.
+
+
+
 
