@@ -45,6 +45,11 @@ class TransactionInput(BaseModel):
     three_ds_flag: int
     transaction_time: str
     shipping_distance_km: float
+    
+class FraudPrediction(BaseModel):
+    fraud_probability: float
+    prediction: str
+
 
 # =========================
 # Prediction Function
@@ -65,12 +70,12 @@ def predict_transaction(transaction: Dict[str, Any]) -> Dict[str, Any]:
 def home():
     return {"message": "Welcome to Fraud Detection API"}
 
-@app.post("/predict")
+@app.post("/predict",response_model=FraudPrediction)
 def predict_api(transaction: TransactionInput):
     result = predict_transaction(transaction.dict())
     return result
 
-@app.post("/predict_batch")
+@app.post("/predict_batch",response_model=List[FraudPrediction])
 def predict_batch(transactions: List[TransactionInput]):
     df = pd.DataFrame([t.dict() for t in transactions])
     probs = pipeline.predict_proba(df)[:, 1]
