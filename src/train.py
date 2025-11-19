@@ -44,7 +44,7 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
 # =====================
 # Load dataset
 # =====================
-df = pd.read_csv("data/transactions.csv")
+df = pd.read_csv("../data/transactions.csv")
 y = df['is_fraud']
 X = df.drop(columns=['is_fraud'])
 
