@@ -1,5 +1,5 @@
-# 🚨 E-Commerce Fraud Detection using Machine Learning  
-### 🔍 Predicting fraudulent transactions with XGBoost & FastAPI | Dockerized & Deployed on Render
+# E-Commerce Fraud Detection using Machine Learning  
+### Predicting fraudulent transactions with XGBoost & FastAPI | Dockerized & Deployed on Render
 
 ## Problem Description
 
