@@ -62,70 +62,116 @@ This project delivers an end-to-end production-ready fraud detection system, inc
 
 The system is suitable for real-world integration into transaction processing pipelines to minimize fraud risk and enhance payment security.
 
-## Exploratory Data Analysis (EDA)
+# Exploratory Data Analysis (EDA)
 
-### 1. Dataset Overview
+## 1. Dataset Overview
 
-- **Total transactions:** 299,695  
-- **Fraudulent transactions:** 6,612 (~2.2%)  
-- **Legitimate transactions:** 293,083 (~97.8%)  
-- **Unique users:** 6,000  
-- **Transactions per user:** approximately 40–60  
-- **Missing values:** none (all 17 columns are complete)
+- **Total transactions:** `299,695`
+- **Fraudulent transactions:** `6,612` (~2.2%)
+- **Legitimate transactions:** `293,083` (~97.8%)
+- **Unique users:** `6,000`
+- **Transactions per user:** ~40–60
+- **Missing values:** `None`
 
-**Data source (Kaggle):**  
-E-Commerce Fraud Detection Dataset  
-https://www.kaggle.com/datasets/umuttuygurr/e-commerce-fraud-detection-dataset  
+**Data source:** Kaggle — E-Commerce Fraud Detection Dataset  
+https://www.kaggle.com/datasets/umuttuygurr/e-commerce-fraud-detection-dataset
 
-This is a synthetic but realistic dataset designed to simulate real-world fraud patterns such as:
+This is a synthetic but realistic dataset simulating real-world transaction behavior, including:
 - Multiple transactions per user
-- Cross-country activity (`country` vs `bin_country`)
-- Time-based behavior (night vs day)
+- Cross-country dynamics (`country` vs `bin_country`)
+- Time-based fraud patterns
 - Natural class imbalance (~2% fraud)
 
 ---
 
-### 2. Feature Overview
+## 2. Feature Overview
 
-| Type              | Features                                                                                                                                              |
-|-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Identifier        | `transaction_id`, `user_id`                                                                                                                           |
-| Numerical         | `account_age_days`, `total_transactions_user`, `avg_amount_user`, `amount`, `shipping_distance_km`                                                   |
-| Categorical       | `country`, `bin_country`, `channel`, `merchant_category`                                                                                              |
-| Binary flags      | `promo_used`, `avs_match`, `cvv_result`, `three_ds_flag`                                                                                              |
-| Time              | `transaction_time` (later transformed into `hour`, `day_of_week`, `is_night`)                                                                        |
-| Target            | `is_fraud` (0 = legitimate, 1 = fraud)                                                                                                                |
+| Feature Type | Features |
+|--------------|----------|
+| **Identifier** | `transaction_id`, `user_id` |
+| **Numerical** | `account_age_days`, `total_transactions_user`, `avg_amount_user`, `amount`, `shipping_distance_km` |
+| **Categorical** | `country`, `bin_country`, `channel`, `merchant_category` |
+| **Binary** | `promo_used`, `avs_match`, `cvv_result`, `three_ds_flag` |
+| **Time** | `transaction_time` (later transformed) |
+| **Target** | `is_fraud` (0 = legitimate, 1 = fraud) |
 
-From `df.info()`:
-
-- 17 columns (3 float, 9 int, 5 object)
-- No missing values in any column
-
-From `df.describe()` (highlights):
-
-- `amount`:  
-  - min = 1.00, max = 16,994.74  
-  - mean ≈ 177.17  
-- `shipping_distance_km`:  
-  - min = 0.00, max ≈ 3,748.56  
-  - mean ≈ 357.05  
-- `is_fraud`:  
-  - mean ≈ 0.022 → about 2.2% of rows are fraudulent
+All 17 columns contain complete values — `0` missing entries.
 
 ---
 
-### 3. Fraud Distribution (Class Imbalance)
+## 3. Fraud Distribution (Class Imbalance)
 
-The target variable `is_fraud` is extremely imbalanced.
+The target variable is heavily imbalanced:
+- **Legitimate:** `293,083`
+- **Fraud:** `6,612`
 
-- Legitimate (0): 293,083
-- Fraudulent (1): 6,612
+**Image in repository at:** `images/fraud_distribution.png`
 
-This is visualized using:
-
-```text
-images/fraud_distribution.png
-```
+**Display in Markdown:**
+```markdown
 ![Fraud vs Non-Fraud Transaction Counts](images/fraud_distribution.png)
+```
 
+**Key insight:**
+- Fraudulent transactions represent only ~2.2% of the dataset
+- Accuracy alone is misleading → we focused on **ROC-AUC, Precision, Recall, and F1-score**
 
+---
+
+## 4. Correlation of Numeric Features
+
+**Image in repository:** `images/correlation_matrix.png`
+
+**Display in Markdown:**
+```markdown
+![Correlation Matrix of Numeric Features](images/correlation_matrix.png)
+```
+
+**Important correlations with `is_fraud`:**
+- `shipping_distance_km` → 0.27
+- `amount` → 0.20
+- `account_age_days` → -0.12
+
+**Insight:** Fraudulent transactions tend to have higher shipping distances and amounts, and often come from newer accounts.
+
+---
+
+## 5. Mutual Information (Categorical/Binary Features)
+
+| Feature | MI Score |
+|---------|----------|
+| `avs_match` | 0.0169 |
+| `cvv_result` | 0.0149 |
+| `three_ds_flag` | 0.0103 |
+| `channel` | 0.0048 |
+| `promo_used` | 0.0019 |
+| `country` | 0.0002 |
+| `bin_country` | 0.0001 |
+| `merchant_category` | 0.0000 |
+
+**Insight:**
+- Security-related checks (`avs_match`, `cvv_result`, `three_ds_flag`) are strong indicators of fraud
+- Country-based features have low standalone influence but improve performance when encoded effectively
+
+---
+
+## 6. Key Takeaways from EDA
+
+1. **Severe class imbalance (~2.2% fraud)** → Metrics like accuracy are incorrect for model evaluation, use ROC-AUC, Precision, Recall, and F1-score.
+2. **Transaction amount and shipping distance** are important fraud indicators.
+3. **Newer accounts** (`low account_age_days`) are more likely to commit fraud.
+4. **Security flag features** (`avs_match`, `cvv_result`) highly correlate with fraud.
+5. **No missing data** → focus was on feature engineering rather than cleaning.
+
+---
+
+## How EDA Influenced Modeling
+
+- Used **tree-based models** (Random Forest, XGBoost) that handle non-linear relationships well.
+- Performed **custom feature engineering:**
+  - `amount_per_avg_ratio`
+  - `cross_country_flag`
+  - `country_freq` / `bin_country_freq`
+  - `hour`, `day_of_week`, `is_night`
+- **Final model selected:** XGBoost
+- Applied **threshold tuning at 0.80** to optimize fraud detection while minimizing false positives.
