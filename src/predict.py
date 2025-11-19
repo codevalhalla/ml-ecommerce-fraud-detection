@@ -10,7 +10,7 @@ import uvicorn
 # =========================
 # Load saved model pipeline
 # =========================
-MODEL_PATH = "../models/fraud_detection_xgb_pipeline.bin"
+MODEL_PATH = "models/fraud_detection_xgb_pipeline.bin"
 with open(MODEL_PATH, "rb") as f_in:
     model_data = pickle.load(f_in)
 

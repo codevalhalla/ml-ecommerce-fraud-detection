@@ -10,7 +10,7 @@ from features import FeatureEngineering
 
 
 #  Load dataset
-df = pd.read_csv("../data/transactions.csv")
+df = pd.read_csv("data/transactions.csv")
 
 y = df["is_fraud"]
 X = df.drop(columns=["is_fraud"])
@@ -54,7 +54,7 @@ best_threshold = 0.80
 
 
 # Save pipeline + threshold
-model_path = "../models/fraud_detection_xgb_pipeline.bin"
+model_path = "models/fraud_detection_xgb_pipeline.bin"
 
 with open(model_path, "wb") as f_out:
     pickle.dump({"pipeline": pipeline, "threshold": best_threshold}, f_out)
