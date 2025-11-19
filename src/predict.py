@@ -5,7 +5,7 @@ import pickle
 import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
-from features import FeatureEngineering
+from src.features import FeatureEngineering
 import uvicorn
 
 # =========================

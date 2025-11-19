@@ -6,7 +6,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction import DictVectorizer
 from xgboost import XGBClassifier
 
-from features import FeatureEngineering 
+from src.features import FeatureEngineering
 
 
 #  Load dataset
