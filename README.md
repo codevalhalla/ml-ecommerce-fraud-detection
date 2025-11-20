@@ -338,7 +338,8 @@ with open(model_path, "wb") as f_out:
     pickle.dump({"pipeline": pipeline, "threshold": best_threshold}, f_out)
 ```
 
-### Example: Model Loading in `predict.py`
+### 
+Example: Model Loading in `predict.py`
 ```python
 with open(MODEL_PATH, "rb") as f_in:
     model_data = pickle.load(f_in)
@@ -346,3 +347,302 @@ with open(MODEL_PATH, "rb") as f_in:
 pipeline = model_data["pipeline"]
 threshold = model_data["threshold"]
 ```
+
+## Reproducibility
+
+This project is fully reproducible. The dataset, notebook, and training scripts are included in the repository, allowing seamless re-execution.
+
+- Dataset available in `data/transactions.csv`
+- Full analysis in `notebooks/notebook.ipynb`
+- Feature Training function in `src/features.py`
+- Final model training located in `src/train.py`
+- Inference logic exposed via `src/predict.py`
+- Trained pipeline saved at `models/fraud_detection_xgb_pipeline.bin`
+
+### How to Reproduce
+```bash
+# Install dependencies and set up environment
+uv sync
+
+# Run training script
+uv run python -m src.train
+
+# Start inference API
+uv run uvicorn src.predict:app --reload --port 8000
+```
+
+---
+
+## Model Deployment (Local)
+
+The trained machine learning model is deployed locally using **FastAPI** and served via **Uvicorn**.
+
+### Start API Locally
+```bash
+uv run uvicorn src.predict:app --reload --port 8000
+```
+
+Once running:
+- **Swagger UI:** `http://localhost:8000/docs`
+- **Root endpoint:** `http://localhost:8000/`
+- **Supports:**
+  - Single transaction prediction → `/predict`
+  - Batch prediction → `/predict_batch`
+  
+---
+
+## Dependency & Environment Management
+
+The project uses **uv** to manage dependencies and execution. All required packages are defined in `pyproject.toml` and `requirements.txt`.
+
+### Install Dependencies
+```bash
+uv sync
+```
+### Example Execution Commands
+```bash
+uv run python -m src.train      # Train model
+uv run uvicorn src.predict:app --reload --port 8000   # Launch API
+```
+---
+
+## Dependency Files
+
+### `requirements.txt`
+```txt
+fastapi
+uvicorn
+pandas
+numpy
+scikit-learn
+xgboost
+pydantic
+pickle-mixin
+```
+
+### `pyproject.toml`
+```toml
+[project]
+name = "ml-ecommerce-fraud-detection"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.121.2",
+    "numpy>=2.3.5",
+    "pandas>=2.3.3",
+    "pydantic>=2.12.4",
+    "scikit-learn>=1.7.2",
+    "uvicorn>=0.38.0",
+    "xgboost>=3.1.1",
+]
+```
+---
+
+## Containerization (Docker)
+
+The project is fully containerized using **Docker**, allowing consistent deployment across environments.
+
+### Dockerfile Used
+```dockerfile
+# Use lightweight Python
+FROM python:3.13-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies (required for XGBoost)
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy dependency file first
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy project files
+COPY . .
+
+# Expose FastAPI port
+EXPOSE 8000
+
+# Run FastAPI app
+CMD ["uvicorn", "src.predict:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+---
+
+### Build the Docker Image
+
+Run the following command inside the project folder:
+```bash
+docker build -t fraud-detection-api:latest .
+```
+---
+
+### Run the Docker Container
+```bash
+docker run -p 8000:8000 fraud-detection-api:latest
+```
+
+Once started, the API will be available at:
+- **Local URL** → `http://localhost:8000/docs/`
+- **Swagger UI** → `http://localhost:8000/docs/`
+---
+
+## Cloud Deployment
+
+The fraud detection API is deployed using FastAPI + Docker on Render, allowing real-time inference via REST API.
+
+**Live API URL**:
+[Render API URL ]
+(https://fraud-detection-api-hsyb.onrender.com/docs)
+
+**(Interactive Swagger UI for API testing)**
+
+### Deployment Steps (Docker + Render)
+
+#### 1. Push complete project to GitHub
+[github repo link]
+(https://github.com/codevalhalla/ml-ecommerce-fraud-detection)
+
+
+#### 2. On Render Dashboard → “New Web Service”
+
+#### 3. Select Deployment Settings
+
+| Setting | Value |
+|---------|-------|
+| Environment |	Docker |
+| Repository | `codevalhalla/ml-ecommerce-fraud-detection` |
+| Branch | main |
+| Root Directory | `(leave empty)` |
+| Environment Variables | `PORT=8000` |
+| Instance Type | Free Tier |
+
+#### 4. Click "Deploy Web Service"
+
+Render automatically:
+
+* Pulls repo
+
+* Builds Docker image
+
+* Runs FastAPI service using command from Dockerfile
+```CSS
+CMD ["uvicorn", "src.predict:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+---
+##  Proof of Successful Deployment
+
+### Render Deployment Configuration
+![Deployment video](images/cloud_deployment/cloud_deployment_video.webm)
+![Deployment Pic](images/cloud_deployment/render_main_api.png)
+
+
+### API Testing Examples
+
+#### 1. Single Transaction (POST /predict)
+
+##### Request
+
+![API request](images/cloud_deployment/predict_request.png)
+
+```json
+{
+  "transaction_id": 1001,
+  "user_id": 25,
+  "account_age_days": 720,
+  "total_transactions_user": 52,
+  "avg_amount_user": 120.50,
+  "amount": 480.75,
+  "country": "US",
+  "bin_country": "US",
+  "channel": "web",
+  "merchant_category": "electronics",
+  "promo_used": 0,
+  "avs_match": 1,
+  "cvv_result": 1,
+  "three_ds_flag": 1,
+  "transaction_time": "2024-03-10T14:35:00Z",
+  "shipping_distance_km": 650.40
+}
+```
+
+##### Response:
+
+![API request](images/cloud_deployment/predict_response.png)
+
+```json
+{
+  "fraud_probability": 0.8438,
+  "prediction": "Fraud"
+}
+```
+
+#### 2. Batch Transactions (POST /predict_batch)
+
+##### Batch Request
+
+![API Batch request](images/cloud_deployment/predict_batch_request.png)
+
+```json
+[
+  {
+    "transaction_id": 1101,
+    "user_id": 41,
+    "account_age_days": 300,
+    "total_transactions_user": 45,
+    "avg_amount_user": 95.40,
+    "amount": 950.00,
+    "country": "DE",
+    "bin_country": "TR",
+    "channel": "app",
+    "merchant_category": "gaming",
+    "promo_used": 1,
+    "avs_match": 0,
+    "cvv_result": 0,
+    "three_ds_flag": 0,
+    "transaction_time": "2024-03-05T02:10:00Z",
+    "shipping_distance_km": 3500.00
+  },
+  {
+    "transaction_id": 1102,
+    "user_id": 102,
+    "account_age_days": 820,
+    "total_transactions_user": 58,
+    "avg_amount_user": 180.00,
+    "amount": 150.75,
+    "country": "FR",
+    "bin_country": "FR",
+    "channel": "web",
+    "merchant_category": "fashion",
+    "promo_used": 0,
+    "avs_match": 1,
+    "cvv_result": 1,
+    "three_ds_flag": 1,
+    "transaction_time": "2024-03-05T17:00:00Z",
+    "shipping_distance_km": 120.00
+  }
+]
+```
+
+##### Batch Response
+
+![API Batch request](images/cloud_deployment/predict_batch_request.png)
+
+```json
+[
+  {
+    "fraud_probability": 0.8723,
+    "prediction": "Fraud"
+  },
+  {
+    "fraud_probability": 0.0284,
+    "prediction": "Legitimate"
+  }
+]
+```
+
+
