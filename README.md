@@ -274,7 +274,7 @@ To determine the optimal probability threshold for classification, Precision–R
 #### Random Forest
 ![Precision-Recall-F1 curve for different thresholds for Random Forest](images/rf_threshold_performance.png)
 #### XGBClassifier (selected model)
-![Precision-Recall-F1 curve for different thresholds for XGBClassifier](xgb_classifier_performance.png)
+![Precision-Recall-F1 curve for different thresholds for XGBClassifier](images/xgb_classifier_performance.png)
 
 ### Final Model Selection
 
