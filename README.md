@@ -304,4 +304,45 @@ After selecting XGBClassifier, the model was retrained using full train + testin
 * A higher threshold reduces false alerts but may miss fraud cases.
 * **0.80 provides the best trade-off, maximizing F1-score (0.8025).**
 
+## Exporting Notebook to Script
 
+To comply with project requirements and ensure reproducibility, all essential machine learning steps developed in the notebook (`notebooks/notebook.ipynb`) were fully converted into Python scripts.
+
+### Scripts Created
+
+| Script | Purpose |
+|--------|---------|
+| `src/train.py` | Contains final model training pipeline and saves the trained model. |
+| `src/predict.py` | Loads the trained model and serves predictions via a FastAPI REST endpoint. |
+| `src/features.py` | Implements the custom feature engineering logic. |
+
+### What Was Exported from Notebook
+
+The following core logic developed and validated in `notebooks/notebook.ipynb` was migrated into standalone scripts for production readiness:
+
+| Exported Component | Implemented In | Description |
+|-------------------|----------------|-------------|
+| Data loading | `train.py` | Reads transaction dataset from `data/transactions.csv`. |
+| Feature engineering logic | `features.py` | Custom transformer class `FeatureEngineering`. |
+| Model training & hyperparameter tuning | `train.py` | Uses tuned XGBoost model parameters finalized from notebook experiments. |
+| Decision threshold selection (`0.80`) | `train.py` | Threshold locked based on best F1 score from validation results. |
+| Final model training | `train.py` | Trains full XGBoost model on entire training dataset. |
+| Model serialization (pipeline + threshold) | `train.py` | Saved using `pickle` as `models/fraud_detection_xgb_pipeline.bin`. |
+| API-based prediction logic | `predict.py` | Loads trained pipeline and serves predictions via FastAPI. |
+
+### Example: Model Saving in `train.py`
+```python
+model_path = "models/fraud_detection_xgb_pipeline.bin"
+
+with open(model_path, "wb") as f_out:
+    pickle.dump({"pipeline": pipeline, "threshold": best_threshold}, f_out)
+```
+
+### Example: Model Loading in `predict.py`
+```python
+with open(MODEL_PATH, "rb") as f_in:
+    model_data = pickle.load(f_in)
+
+pipeline = model_data["pipeline"]
+threshold = model_data["threshold"]
+```
