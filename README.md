@@ -267,25 +267,28 @@ Multiple models were trained using the training set and evaluated against the va
 ### Threshold Optimization Visualizations
 
 To determine the optimal probability threshold for classification, Precision–Recall–F1 curves were plotted for each model:
-* Logistic Regression 
+#### Logistic Regression 
 ![Precision-Recall-F1 curve for different thresholds](images/logistic_regression_threshold_performance.png)
-* Decision Tree → `images/decision_threshold_performance.png`
-* Random Forest → `images/rf_threshold_performance.png`
-* XGBoost (selected model) → `images/xgboost_threshold_performance.png`
+#### Decision Tree
+![Precision-Recall-F1 curve for different thresholds for decision tree](images/decision_threshold_performance.png)
+#### Random Forest
+![Precision-Recall-F1 curve for different thresholds for Random Forest](images/rf_threshold_performance.png)
+#### XGBClassifier (selected model)
+![Precision-Recall-F1 curve for different thresholds for XGBClassifier](images/xgboost_threshold_performance.png)
 
-## 🏆 Final Model Selection
+### Final Model Selection
 
-After comparing performance across models, **XGBoost** was selected as the final production model based on the following:
+After comparing performance across models, **XGBClassifier** was selected as the final production model based on the following:
 
-✔ Highest ROC-AUC on validation  
-✔ Balanced Precision and Recall  
-✔ Best F1-score, indicating strong fraud detection capability with minimal false alerts  
-✔ Captures non-linear relationships effectively  
-✔ Optimized using `scale_pos_weight` to handle class imbalance
+* Highest ROC-AUC on validation  
+* Balanced Precision and Recall  
+* Best F1-score, indicating strong fraud detection capability with minimal false positives  
+* Captures non-linear relationships effectively  
+* Optimized using `scale_pos_weight` to handle class imbalance
 
-## 🔎 Final Model Evaluation (on Test Set)
+### Final Model Evaluation (on Test Set)
 
-After selecting XGBoost, the model was retrained using full train + validation datasets, and final evaluation was performed on the test set.
+After selecting XGBClassifier, the model was retrained using full train + testing datasets, and final evaluation was performed on the test set.
 
 | Metric | Value |
 |--------|-------|
@@ -295,8 +298,10 @@ After selecting XGBoost, the model was retrained using full train + validation d
 | F1 Score | 0.8025 |
 | Decision Threshold | 0.80 |
 
-## 📌 Why Threshold = 0.80?
+### Why Threshold = 0.80?
 
 * A lower threshold catches more fraud but increases false positives.
 * A higher threshold reduces false alerts but may miss fraud cases.
 * **0.80 provides the best trade-off, maximizing F1-score (0.8025).**
+
+
