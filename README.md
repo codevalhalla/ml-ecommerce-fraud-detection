@@ -644,5 +644,18 @@ CMD ["uvicorn", "src.predict:app", "--host", "0.0.0.0", "--port", "8000"]
   }
 ]
 ```
+## Conclusion
+
+This project successfully implements an end-to-end fraud detection system for e-commerce transactions using machine learning. After performing detailed exploratory data analysis, feature engineering, and model comparison, XGBoost was selected as the final model due to its high performance:
+
+ROC-AUC: 0.9781
+
+F1-Score: 0.8025
+
+Decision Threshold: 0.80
+
+The final solution was packaged with FastAPI, containerized using Docker, and deployed on Render, enabling real-time prediction of single or multiple transactions. The system is ready for integration into production environments to help minimize fraud risk and improve transactional security.
+
+Future enhancements may include real-time streaming, model monitoring, explainability (SHAP), and additional behavioral analytics
 
 
