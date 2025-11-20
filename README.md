@@ -246,4 +246,57 @@ pipeline = Pipeline(
     ]
 )
 ```
+## Model Training & Selection
 
+The dataset was split into:
+* 60% Training
+* 20% Validation
+* 20% Testing
+
+Multiple models were trained using the training set and evaluated against the validation set. Hyperparameter tuning and threshold optimization were performed to maximize predictive performance, especially focusing on F1-score and Recall, which are critical for fraud detection.
+
+### Models Evaluated
+
+| Model | Tuned Parameters | Decision Threshold | ROC-AUC | Precision | Recall | F1 Score |
+|-------|------------------|-------------------|---------|-----------|--------|----------|
+| Logistic Regression | `C=0.001, max_iter=3000, n_jobs=-1` | 0.30 | 0.9435 | 0.7714 | 0.4732 | 0.5866 |
+| Decision Tree | `max_depth=9, min_samples_leaf=60, random_state=42` | 0.30 | 0.9709 | 0.8833 | 0.7663 | 0.8206 |
+| Random Forest | `class_weight='balanced', max_depth=10, min_samples_leaf=10, n_estimators=500, n_jobs=-1, random_state=42` | 0.70 | 0.9758 | 0.6885 | 0.8092 | 0.7440 |
+| XGBoost (Final) | `objective='binary:logistic', eval_metric='auc', subsample=1.0, scale_pos_weight=25, n_estimators=500, min_child_weight=40, max_depth=5, learning_rate=0.01, colsample_bytree=0.7, tree_method='hist', n_jobs=-1, random_state=42` | 0.80 | 0.9776 | 0.7944 | 0.8014 | 0.7979 |
+
+### Threshold Optimization Visualizations
+
+To determine the optimal probability threshold for classification, Precision–Recall–F1 curves were plotted for each model:
+* Logistic Regression 
+![Precision-Recall-F1 curve for different thresholds](images/logistic_regression_threshold_performance.png)
+* Decision Tree → `images/decision_threshold_performance.png`
+* Random Forest → `images/rf_threshold_performance.png`
+* XGBoost (selected model) → `images/xgboost_threshold_performance.png`
+
+## 🏆 Final Model Selection
+
+After comparing performance across models, **XGBoost** was selected as the final production model based on the following:
+
+✔ Highest ROC-AUC on validation  
+✔ Balanced Precision and Recall  
+✔ Best F1-score, indicating strong fraud detection capability with minimal false alerts  
+✔ Captures non-linear relationships effectively  
+✔ Optimized using `scale_pos_weight` to handle class imbalance
+
+## 🔎 Final Model Evaluation (on Test Set)
+
+After selecting XGBoost, the model was retrained using full train + validation datasets, and final evaluation was performed on the test set.
+
+| Metric | Value |
+|--------|-------|
+| ROC-AUC | 0.9781 |
+| Precision | 0.7823 |
+| Recall | 0.8238 |
+| F1 Score | 0.8025 |
+| Decision Threshold | 0.80 |
+
+## 📌 Why Threshold = 0.80?
+
+* A lower threshold catches more fraud but increases false positives.
+* A higher threshold reduces false alerts but may miss fraud cases.
+* **0.80 provides the best trade-off, maximizing F1-score (0.8025).**
