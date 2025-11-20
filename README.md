@@ -635,11 +635,11 @@ CMD ["uvicorn", "src.predict:app", "--host", "0.0.0.0", "--port", "8000"]
 ```json
 [
   {
-    "fraud_probability": 0.8723,
+    "fraud_probability": 0.9824,
     "prediction": "Fraud"
   },
   {
-    "fraud_probability": 0.0284,
+    "fraud_probability": 0.0365,
     "prediction": "Legitimate"
   }
 ]
